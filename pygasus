@@ -1,5 +1,7 @@
 import sys
 from robobrowser import RoboBrowser
+from pathlib import Path
+import getpass
 
 def print_help():
 
@@ -14,19 +16,19 @@ def print_help():
 def print_ascii():
 
     print()
-    print(" ________  ___    ___ ________  ________  ________  ___  ___  ________")      
+    print(" ________  ___    ___ ________  ________  ________  ___  ___  ________")
     print("|\\   __  \\|\\  \\  /  /|\\   ____\\|\\   __  \\|\\   ____\\|\\  \\|\\  \\|\\   ____\\     ")
     print("\\ \\  \\|\\  \\ \\  \\/  / | \\  \\___|\\ \\  \\|\\  \\ \\  \\___|\\ \\  \\\\\\  \\ \\  \\___|_    ")
     print(" \\ \\   ____\\ \\    / / \\ \\  \\  __\\ \\   __  \\ \\_____  \\ \\  \\\\\\  \\ \\_____  \\   ")
     print("  \\ \\  \\___|\\/  /  /   \\ \\  \\|\\  \\ \\  \\ \\  \\|____|\\  \\ \\  \\\\\\  \\|____|\\  \\  ")
     print("   \\ \\__\\ __/  / /      \\ \\_______\\ \\__\\ \\__\\____\\_\\  \\ \\_______\\____\\_\\  \\ ")
     print("    \\|__||\\___/ /        \\|_______|\\|__|\\|__|\\_________\\|_______|\\_________\\")
-    print("         \\|___|/                            \\|_________|        \\|_________|") 
+    print("         \\|___|/                            \\|_________|        \\|_________|")
     print()
     print()
 
 def print_all(grades,name):
-    
+
     print()
     print()
     print('+---------------------------------------+')
@@ -68,7 +70,7 @@ def print_all(grades,name):
     print("Subject average : " + str(get_average(grades)))
 
 def get_average(grades, select="all"):
-     
+
     average = {"mcq": 0, "cc": 0, "td": 0, "partiel"
                 : 0, "projet": 0, "all": 0}
 
@@ -87,23 +89,23 @@ def get_average(grades, select="all"):
     if "PROJET" in grades:
         average["projet"] = sum(grades["PROJET"])
 
-    average["all"] = ((((average["mcq"]+average["td"]) / 2 if average["mcq"] != 0 and average["td"] != 0 else 1) 
-                    + average["cc"])/2 + average["partiel"]) 
-    
+    average["all"] = ((((average["mcq"]+average["td"]) / 2 if average["mcq"] != 0 and average["td"] != 0 else 1)
+                    + average["cc"])/2 + average["partiel"])
+
     try:
         return average[select]
     except:
         print("No grade called " + select + " :(, call with -help for help")
     return 0
 
-def get_note(arg=None):
-    
+def get_note(login, password, arg=None):
+
     browser = RoboBrowser(parser="lxml", history=True)
     browser.open("https://epita-etu.helvetius.net/pegasus/", "lxml")
 
     form = browser.get_form(action='index.php')
-    form['login'].value = 'm.noel'
-    form['password'].value = 'lm.one'
+    form['login'].value = login
+    form['password'].value = password
 
     browser.submit_form(form)
     browser.open("https://epita-etu.helvetius.net/pegasus/index.php?com=extract&job=extract-notes",
@@ -125,17 +127,17 @@ def get_note(arg=None):
     ids = []
 
     for row in rows:
-     
+
          types = row.find('td', {'title': 'Type de note'})
          note = row.find('td', {'title': 'Note (Cc 1,00) (Cn 1,00)'})
-     
+
          if types and note:
-        
+
             idn = note['id']
             id_n = int(idn.split('_')[3])
-        
+
             if id_n < 1798:
-            
+
                 if (id_n > 149) and (id_n <= 304) and not id_n in ids:
                     note_math[types.find('div').string].append(float(note.find('div').string.replace(',', '.')))
 
@@ -164,7 +166,7 @@ def get_note(arg=None):
                     note_oc[types.find('div').string].append(float(note.find('div').string.replace(',', '.')))
 
             ids.append(id_n)
-    
+
     if arg:
         if len(arg) == 2:
             print("Scraping pegasus for " + arg[1] + " ...")
@@ -229,7 +231,7 @@ def get_note(arg=None):
             if arg[1] == "oc":
                 print(get_average(note_oc, arg[2]))
                 print()
-                 
+
     else:
         print_all(note_math, "math")
         print_all(note_algo, "algo")
@@ -240,34 +242,47 @@ def get_note(arg=None):
         print_all(note_anglais, "anglais")
         print_all(note_oc, " oc ")
         print_all(note_te, " te ")
-    '''
-    print_all(note_math)
-    print_all(note_archi)
-    print_all(note_algo)
-    print_all(note_physique)
-    print(get_average(note_math))
-    print(get_average(note_elec))
-    print(get_average(note_elec, "cc"))
-    '''
-def main():
-    
-    print_ascii()
+
+
+def main(login, password):
+
 
     arguments = sys.argv
 
     if len(arguments) == 1:
         print("running pygasus with no argument, -help for help", end='\n')
-        get_note()
+        get_note(login, password)
 
     else:
     # globals()[sys.argv[1]]
         if arguments[1] == "-help":
             print_help()
-            
-        else:
-            get_note(arguments)
 
-                                                                            
-                                                                                           
-                                                                            
-main()
+        else:
+            get_note(login, password, arguments)
+
+def ask_login():
+
+    print_ascii()
+    print("Welcome to pygasus.")
+    print()
+
+    if Path("./.log").is_file():
+        with open (".log", "r") as myfile:
+             user_data = myfile.readlines()
+        login = user_data[0].replace('\n', '')
+        password = user_data[1].replace('\n', '')
+        print("Running program for " + login +". Change .log file for other users.")
+        print()
+
+    else:
+        login = input("Please enter your login : ")
+        password = getpass.getpass()
+        if input("Do you want pegasus to remember you? y/n : ") == 'y':
+            file = open(".log", "w")
+            file.write(login +'\n')
+            file.write(password + '\n')
+
+    main(login, password)
+
+ask_login()
