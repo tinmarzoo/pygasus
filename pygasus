@@ -111,8 +111,13 @@ def get_note(login, password, arg=None):
     browser.open("https://epita-etu.helvetius.net/pegasus/index.php?com=extract&job=extract-notes",
                  "lxml")
 
-    table = browser.find('table', {'class': 'dsp_data_table'})
-    rows = table.find_all('tr')
+    try:
+        table = browser.find('table', {'class': 'dsp_data_table'})
+        rows = table.find_all('tr')
+    except:
+        print("Invalide login or password.")
+        return
+
 
     note_math = {"CC QCM": [], "CC ECRIT": [], "TD": [], "PROJET": [], "PARTIEL": []}
     note_algo = {"CC QCM": [], "CC ECRIT": [], "PARTIEL": []}
@@ -278,6 +283,7 @@ def ask_login():
     else:
         login = input("Please enter your login : ")
         password = getpass.getpass()
+        print()
         if input("Do you want pegasus to remember you? y/n : ") == 'y':
             file = open(".log", "w")
             file.write(login +'\n')
