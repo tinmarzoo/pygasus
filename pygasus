@@ -1,6 +1,5 @@
 import sys
 from robobrowser import RoboBrowser
-from bs4 import BeautifulSoup
 
 def print_help():
 
