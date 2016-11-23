@@ -1,0 +1,274 @@
+import sys
+from robobrowser import RoboBrowser
+from bs4 import BeautifulSoup
+
+def print_help():
+
+    print("Simply call 'python pygasus' to display all your grades and averages.")
+    print("Call with subject as argument to only get info on that same subject.", end='\n')
+    print("Ex : 'python pygasus math' or 'python pygasus algo' (math, algo, elec, ip, phy, anglais, te, archi, oc).", end='\n')
+    print("Call with type of grade after subject to get only those grades.")
+    print("Ex : 'python pygasus math mcq' or 'python pygasus algo td' (mcd, cc, td, partiel, projet).")
+    print()
+    print()
+
+def print_ascii():
+
+    print()
+    print(" ________  ___    ___ ________  ________  ________  ___  ___  ________")      
+    print("|\\   __  \\|\\  \\  /  /|\\   ____\\|\\   __  \\|\\   ____\\|\\  \\|\\  \\|\\   ____\\     ")
+    print("\\ \\  \\|\\  \\ \\  \\/  / | \\  \\___|\\ \\  \\|\\  \\ \\  \\___|\\ \\  \\\\\\  \\ \\  \\___|_    ")
+    print(" \\ \\   ____\\ \\    / / \\ \\  \\  __\\ \\   __  \\ \\_____  \\ \\  \\\\\\  \\ \\_____  \\   ")
+    print("  \\ \\  \\___|\\/  /  /   \\ \\  \\|\\  \\ \\  \\ \\  \\|____|\\  \\ \\  \\\\\\  \\|____|\\  \\  ")
+    print("   \\ \\__\\ __/  / /      \\ \\_______\\ \\__\\ \\__\\____\\_\\  \\ \\_______\\____\\_\\  \\ ")
+    print("    \\|__||\\___/ /        \\|_______|\\|__|\\|__|\\_________\\|_______|\\_________\\")
+    print("         \\|___|/                            \\|_________|        \\|_________|") 
+    print()
+    print()
+
+def print_all(grades,name):
+    
+    print()
+    print()
+    print('+---------------------------------------+')
+    print('                '+name+'                ')
+    print('+---------------------------------------+')
+    print()
+
+    if "CC QCM" in grades and grades["CC QCM"] != []:
+        print('| Mcqs     : |', end='')
+        for i in grades["CC QCM"]:
+            print(i, end=' | ')
+        print()
+
+    if "CC ECRIT" in grades and grades["CC ECRIT"] != []:
+        print('| CC ECRIT : |', end='')
+        for i in grades["CC ECRIT"]:
+            print(i, end=' | ')
+        print()
+
+    if "TD" in grades and grades["TD"] != []:
+        print('| TD       : |', end='')
+        for i in grades["TD"]:
+            print(i, end=' | ')
+        print()
+
+    if "PARTIEL" in grades and grades["PARTIEL"] != []:
+        print('| PARTIEL  : |', end='')
+        for i in grades["PARTIEL"]:
+            print(i, end=' | ')
+        print()
+
+    if "PROJET" in grades and grades["PROJET"] != []:
+        print('| PROJET   : |', end='')
+        for i in grades["PROJET"]:
+            print(i, end=' | ')
+        print()
+
+    print()
+    print("Subject average : " + str(get_average(grades)))
+
+def get_average(grades, select="all"):
+     
+    average = {"mcq": 0, "cc": 0, "td": 0, "partiel"
+                : 0, "projet": 0, "all": 0}
+
+    if "CC QCM" in grades:
+        average["mcq"] = sum(grades["CC QCM"])/(len(grades["CC QCM"]))
+
+    if "CC ECRIT" in grades:
+        average["cc"] = sum(grades["CC ECRIT"])/(len(grades["CC ECRIT"]))
+
+    if "TD" in grades:
+        average["td"] = sum(grades["TD"])/(len(grades["TD"]))
+
+    if "PARTIEL" in grades:
+        average["partiel"] = sum(grades["PARTIEL"])
+
+    if "PROJET" in grades:
+        average["projet"] = sum(grades["PROJET"])
+
+    average["all"] = ((((average["mcq"]+average["td"]) / 2 if average["mcq"] != 0 and average["td"] != 0 else 1) 
+                    + average["cc"])/2 + average["partiel"]) 
+    
+    try:
+        return average[select]
+    except:
+        print("No grade called " + select + " :(, call with -help for help")
+    return 0
+
+def get_note(arg=None):
+    
+    browser = RoboBrowser(parser="lxml", history=True)
+    browser.open("https://epita-etu.helvetius.net/pegasus/", "lxml")
+
+    form = browser.get_form(action='index.php')
+    form['login'].value = 'm.noel'
+    form['password'].value = 'lm.one'
+
+    browser.submit_form(form)
+    browser.open("https://epita-etu.helvetius.net/pegasus/index.php?com=extract&job=extract-notes",
+                 "lxml")
+
+    table = browser.find('table', {'class': 'dsp_data_table'})
+    rows = table.find_all('tr')
+
+    note_math = {"CC QCM": [], "CC ECRIT": [], "TD": [], "PROJET": [], "PARTIEL": []}
+    note_algo = {"CC QCM": [], "CC ECRIT": [], "PARTIEL": []}
+    note_ip = {"CC ECRIT": [], "PROJET": [], "PARTIEL": []}
+    note_archi = {"CC QCM": [], "CC ECRIT": [], "PARTIEL": []}
+    note_physique = {"CC QCM": [], "CC ECRIT": [], "PARTIEL": []}
+    note_elec = {"CC QCM": [], "CC ECRIT": [], "PARTIEL": []}
+    note_te = {"CC ECRIT": [], "PARTIEL": []}
+    note_anglais = {"CC ECRIT": [], "CC QCM": [], "PARTIEL": []}
+    note_oc = {"CC ECRIT": [], "CC QCM": [], "PARTIEL": []}
+
+    ids = []
+
+    for row in rows:
+     
+         types = row.find('td', {'title': 'Type de note'})
+         note = row.find('td', {'title': 'Note (Cc 1,00) (Cn 1,00)'})
+     
+         if types and note:
+        
+            idn = note['id']
+            id_n = int(idn.split('_')[3])
+        
+            if id_n < 1798:
+            
+                if (id_n > 149) and (id_n <= 304) and not id_n in ids:
+                    note_math[types.find('div').string].append(float(note.find('div').string.replace(',', '.')))
+
+                if (id_n > 387) and (id_n < 543) and not id_n in ids:
+                    note_algo[types.find('div').string].append(float(note.find('div').string.replace(',', '.')))
+
+                if (id_n > 643) and (id_n < 662) and not id_n in ids:
+                    note_ip[types.find('div').string].append(float(note.find('div').string.replace(',', '.')))
+
+                if (id_n > 745) and (id_n < 883) and not id_n in ids:
+                    note_archi[types.find('div').string].append(float(note.find('div').string.replace(',', '.')))
+
+                if (id_n > 949) and (id_n < 1087) and not id_n in ids:
+                    note_physique[types.find('div').string].append(float(note.find('div').string.replace(',', '.')))
+
+                if (id_n > 1153) and (id_n < 1291) and not id_n in ids:
+                    note_elec[types.find('div').string].append(float(note.find('div').string.replace(',', '.')))
+
+                if (id_n > 1374) and (id_n < 1376) and not id_n in ids:
+                    note_te[types.find('div').string].append(float(note.find('div').string.replace(',', '.')))
+
+                if (id_n > 1442) and (id_n < 1580) and not id_n in ids:
+                    note_anglais[types.find('div').string].append(float(note.find('div').string.replace(',', '.')))
+
+                if (id_n > 1646) and (id_n < 1784) and not id_n in ids:
+                    note_oc[types.find('div').string].append(float(note.find('div').string.replace(',', '.')))
+
+            ids.append(id_n)
+    
+    if arg:
+        if len(arg) == 2:
+            print("Scraping pegasus for " + arg[1] + " ...")
+
+            if arg[1] == "math":
+                print_all(note_math, "math")
+
+            if arg[1] == "algo":
+                print_all(note_algo, "algo")
+
+            if arg[1] == "ip":
+                print_all(note_ip, " ip ")
+
+            if arg[1] == "phy":
+                print_all(note_physique, "phy ")
+
+            if arg[1] == "anglais":
+                print_all(note_anglais, "anglais")
+
+            if arg[1] == "te":
+                print_all(note_te, " te ")
+
+            if arg[1] == "archi":
+                print_all(note_archi, "archi")
+
+            if arg[1] == "oc":
+                print_all(note_oc, " oc ")
+
+            if arg[1] == "elec":
+                print_all(note_elec, "elec")
+        else:
+            print("Average of " + arg[2] + " in " + arg[1] + " is :")
+
+            if arg[1] == "math":
+                print(get_average(note_math, arg[2]))
+                print()
+
+            if arg[1] == "algo":
+                print(get_average(note_algo, arg[2]))
+                print()
+
+            if arg[1] == "ip":
+                print(get_average(note_ip, arg[2]))
+                print()
+
+            if arg[1] == "phy":
+                print(get_average(note_physique, arg[2]))
+                print()
+
+            if arg[1] == "anglais":
+                print(get_average(note_anglais, arg[2]))
+                print()
+
+            if arg[1] == "te":
+                print(get_average(note_te, arg[2]))
+                print()
+
+            if arg[1] == "archi":
+                print(get_average(note_archi, arg[2]))
+                print()
+
+            if arg[1] == "oc":
+                print(get_average(note_oc, arg[2]))
+                print()
+                 
+    else:
+        print_all(note_math, "math")
+        print_all(note_algo, "algo")
+        print_all(note_physique, "phy ")
+        print_all(note_archi, "archi")
+        print_all(note_elec, "elec")
+        print_all(note_ip, " ip ")
+        print_all(note_anglais, "anglais")
+        print_all(note_oc, " oc ")
+        print_all(note_te, " te ")
+    '''
+    print_all(note_math)
+    print_all(note_archi)
+    print_all(note_algo)
+    print_all(note_physique)
+    print(get_average(note_math))
+    print(get_average(note_elec))
+    print(get_average(note_elec, "cc"))
+    '''
+def main():
+    
+    print_ascii()
+
+    arguments = sys.argv
+
+    if len(arguments) == 1:
+        print("running pygasus with no argument, -help for help", end='\n')
+        get_note()
+
+    else:
+    # globals()[sys.argv[1]]
+        if arguments[1] == "-help":
+            print_help()
+            
+        else:
+            get_note(arguments)
+
+                                                                            
+                                                                                           
+                                                                            
+main()
