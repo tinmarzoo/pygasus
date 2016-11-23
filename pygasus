@@ -89,8 +89,19 @@ def get_average(grades, select="all"):
     if "PROJET" in grades:
         average["projet"] = sum(grades["PROJET"])
 
-    average["all"] = ((((average["mcq"]+average["td"]) / 2 if average["mcq"] != 0 and average["td"] != 0 else 1)
-                    + average["cc"])/2 + average["partiel"])
+    if average["mcq"] != 0:
+        if average["td"] != 0:
+            average["all"] = ((((average["mcq"]+average["td"]) / 2 + average["cc"])) / 2 +
+                            average["partiel"]) / (2 if average["partiel"] != 0 else 1)
+        else:
+            average["all"] = ((average["mcq"] + average["cc"]) / 2 +
+                            average["partiel"]) / (2 if average["partiel"] != 0 else 1)
+    else:
+        if average["projet"] != 0:
+            average["all"] = ((average["projet"] + average["cc"]) / 2 +
+                            average["partiel"]) / (2 if average["partiel"] != 0 else 1)
+        else:
+            average["all"] = (average["cc"] + average["partiel"]) / (2 if average["partiel"] != 0 else 1)
 
     try:
         return average[select]
