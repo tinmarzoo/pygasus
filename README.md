@@ -6,7 +6,7 @@ Pygasus is a grade scraping tool for pegasus website.
 ### Dependencies
 
 * [RoboBrowser] - python web scraping tool
-* [python 3] - python web scraping tool
+* [python 3] - python 3+
 
 ### Installation
 
