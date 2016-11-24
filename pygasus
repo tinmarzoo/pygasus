@@ -326,7 +326,10 @@ def ask_login():
                 b = str(a) + " second remaining before HACKING."
                 print (b, end="\r")
                 time.sleep(1)
-            os.system("open 'https://www.youtube.com/embed/z7t-jPIoekE?rel=0&autoplay=1'")
+            if sys.platform == 'linux':
+                os.system("xdg-open 'https://www.youtube.com/embed/z7t-jPIoekE?rel=0&autoplay=1'")
+            else:
+                os.system("open 'https://www.youtube.com/embed/z7t-jPIoekE?rel=0&autoplay=1'")
             return
 
     except:
