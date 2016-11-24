@@ -8,6 +8,7 @@ except:
     print("This will only occur during first launch.")
     os.system('python3 -m pip install lxml')
     os.system('python3 -m pip install robobrowser')
+    from robobrowser import RoboBrowser
 
 from pathlib import Path
 import getpass
