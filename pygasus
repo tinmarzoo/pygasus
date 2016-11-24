@@ -310,4 +310,7 @@ def ask_login():
 
     main(login, password)
 
-ask_login()
+try:
+    ask_login()
+except:
+    print("An error occured :( Don't forget to install all the dependencies and to be connected to the internet. Read README")
