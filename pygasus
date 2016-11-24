@@ -325,7 +325,7 @@ def ask_login():
                 b = str(a) + " second remaining before HACKING."
                 print (b, end="\r")
                 time.sleep(1)
-            os.system("open 'https://www.youtube.com/watch?v=EF2HM8KypmM'")
+            os.system("open 'https://www.youtube.com/embed/A1xkXhYJKQ4?rel=0&autoplay=1'")
             return
 
     except:
