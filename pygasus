@@ -17,13 +17,18 @@ import getpass
 def print_help():
 
     print("Simply call 'python pygasus' to display all your grades and averages.")
-    print("Call with subject as argument to only get info on that same subject.", end='\n')
-    print("Ex : 'python pygasus math' or 'python pygasus algo' (math, algo, elec, ip, phy, anglais, te, archi, oc).", end='\n')
+    print(
+        "Call with subject as argument to only get info on that same subject.",
+        end='\n')
+    print(
+        "Ex : 'python pygasus math' or 'python pygasus algo' (math, algo, elec, ip, phy, anglais, te, archi, oc).",
+        end='\n')
     print("Call with type of grade after subject to get only those grades.")
     print("Ex : 'python pygasus math mcq' or 'python pygasus algo td' (mcd, cc, td, partiel, projet).")
     print("Call 'pygasus log' to change your log info.")
     print()
     print()
+
 
 def print_ascii():
 
@@ -39,12 +44,13 @@ def print_ascii():
     print()
     print()
 
-def print_all(grades,name):
+
+def print_all(grades, name):
 
     print()
     print()
     print('+---------------------------------------+')
-    print('                '+name+'                ')
+    print('                ' + name + '                ')
     print('+---------------------------------------+')
     print()
 
@@ -81,19 +87,19 @@ def print_all(grades,name):
     print()
     print("Subject average : " + str(get_average(grades)))
 
+
 def get_average(grades, select="all"):
 
-    average = {"mcq": 0, "cc": 0, "td": 0, "partiel"
-                : 0, "projet": 0, "all": 0}
+    average = {"mcq": 0, "cc": 0, "td": 0, "partiel": 0, "projet": 0, "all": 0}
 
     if "CC QCM" in grades:
-        average["mcq"] = sum(grades["CC QCM"])/(len(grades["CC QCM"]))
+        average["mcq"] = sum(grades["CC QCM"]) / (len(grades["CC QCM"]))
 
     if "CC ECRIT" in grades:
-        average["cc"] = sum(grades["CC ECRIT"])/(len(grades["CC ECRIT"]))
+        average["cc"] = sum(grades["CC ECRIT"]) / (len(grades["CC ECRIT"]))
 
     if "TD" in grades:
-        average["td"] = sum(grades["TD"])/(len(grades["TD"]))
+        average["td"] = sum(grades["TD"]) / (len(grades["TD"]))
 
     if "PARTIEL" in grades:
         average["partiel"] = sum(grades["PARTIEL"])
@@ -103,23 +109,25 @@ def get_average(grades, select="all"):
 
     if average["mcq"] != 0:
         if average["td"] != 0:
-            average["all"] = ((((average["mcq"]+average["td"]) / 2 + average["cc"])) / 2 +
-                            average["partiel"]) / (2 if average["partiel"] != 0 else 1)
+            average["all"] = ((((average["mcq"] + average["td"]) / 2 + average["cc"])) / 2 +
+                              average["partiel"]) / (2 if average["partiel"] != 0 else 1)
         else:
-            average["all"] = ((average["mcq"] + average["cc"]) / 2 +
-                            average["partiel"]) / (2 if average["partiel"] != 0 else 1)
+            average["all"] = ((average["mcq"] + average["cc"]) / 2 + \
+                              average["partiel"]) / (2 if average["partiel"] != 0 else 1)
     else:
         if average["projet"] != 0:
             average["all"] = ((average["projet"] + average["cc"]) / 2 +
-                            average["partiel"]) / (2 if average["partiel"] != 0 else 1)
+                              average["partiel"]) / (2 if average["partiel"] != 0 else 1)
         else:
-            average["all"] = (average["cc"] + average["partiel"]) / (2 if average["partiel"] != 0 else 1)
+            average["all"] = (average["cc"] + average["partiel"]) / \
+                (2 if average["partiel"] != 0 else 1)
 
     try:
         return average[select]
     except:
-        print("No grade called " + select + " :(, call with -help for help")
+        print("No grade called " + select + " :(, call with --help for help")
     return 0
+
 
 def get_note(login, password, arg=None):
 
@@ -131,8 +139,9 @@ def get_note(login, password, arg=None):
     form['password'].value = password
 
     browser.submit_form(form)
-    browser.open("https://epita-etu.helvetius.net/pegasus/index.php?com=extract&job=extract-notes",
-                 "lxml")
+    browser.open(
+        "https://epita-etu.helvetius.net/pegasus/index.php?com=extract&job=extract-notes",
+        "lxml")
 
     try:
         table = browser.find('table', {'class': 'dsp_data_table'})
@@ -141,8 +150,13 @@ def get_note(login, password, arg=None):
         print("Invalide login or password.")
         return
 
+    note_math = {
+        "CC QCM": [],
+        "CC ECRIT": [],
+        "TD": [],
+        "PROJET": [],
+        "PARTIEL": []}
 
-    note_math = {"CC QCM": [], "CC ECRIT": [], "TD": [], "PROJET": [], "PARTIEL": []}
     note_algo = {"CC QCM": [], "CC ECRIT": [], "PARTIEL": []}
     note_ip = {"CC ECRIT": [], "PROJET": [], "PARTIEL": []}
     note_archi = {"CC QCM": [], "CC ECRIT": [], "PARTIEL": []}
@@ -156,10 +170,10 @@ def get_note(login, password, arg=None):
 
     for row in rows:
 
-         types = row.find('td', {'title': 'Type de note'})
-         note = row.find('td', {'title': 'Note (Cc 1,00) (Cn 1,00)'})
+        types = row.find('td', {'title': 'Type de note'})
+        note = row.find('td', {'title': 'Note (Cc 1,00) (Cn 1,00)'})
 
-         if types and note:
+        if types and note:
 
             idn = note['id']
             id_n = int(idn.split('_')[3])
@@ -167,31 +181,40 @@ def get_note(login, password, arg=None):
             if id_n < 1798:
 
                 if (id_n > 149) and (id_n <= 304) and not id_n in ids:
-                    note_math[types.find('div').string].append(float(note.find('div').string.replace(',', '.')))
+                    note_math[types.find('div').string].append(
+                        float(note.find('div').string.replace(',', '.')))
 
                 if (id_n > 387) and (id_n < 543) and not id_n in ids:
-                    note_algo[types.find('div').string].append(float(note.find('div').string.replace(',', '.')))
+                    note_algo[types.find('div').string].append(
+                        float(note.find('div').string.replace(',', '.')))
 
                 if (id_n > 643) and (id_n < 662) and not id_n in ids:
-                    note_ip[types.find('div').string].append(float(note.find('div').string.replace(',', '.')))
+                    note_ip[types.find('div').string].append(
+                        float(note.find('div').string.replace(',', '.')))
 
                 if (id_n > 745) and (id_n < 883) and not id_n in ids:
-                    note_archi[types.find('div').string].append(float(note.find('div').string.replace(',', '.')))
+                    note_archi[types.find('div').string].append(
+                        float(note.find('div').string.replace(',', '.')))
 
                 if (id_n > 949) and (id_n < 1087) and not id_n in ids:
-                    note_physique[types.find('div').string].append(float(note.find('div').string.replace(',', '.')))
+                    note_physique[types.find('div').string].append(
+                        float(note.find('div').string.replace(',', '.')))
 
                 if (id_n > 1153) and (id_n < 1291) and not id_n in ids:
-                    note_elec[types.find('div').string].append(float(note.find('div').string.replace(',', '.')))
+                    note_elec[types.find('div').string].append(
+                        float(note.find('div').string.replace(',', '.')))
 
                 if (id_n > 1374) and (id_n < 1376) and not id_n in ids:
-                    note_te[types.find('div').string].append(float(note.find('div').string.replace(',', '.')))
+                    note_te[types.find('div').string].append(
+                        float(note.find('div').string.replace(',', '.')))
 
                 if (id_n > 1442) and (id_n < 1580) and not id_n in ids:
-                    note_anglais[types.find('div').string].append(float(note.find('div').string.replace(',', '.')))
+                    note_anglais[types.find('div').string].append(
+                        float(note.find('div').string.replace(',', '.')))
 
                 if (id_n > 1646) and (id_n < 1784) and not id_n in ids:
-                    note_oc[types.find('div').string].append(float(note.find('div').string.replace(',', '.')))
+                    note_oc[types.find('div').string].append(
+                        float(note.find('div').string.replace(',', '.')))
 
             ids.append(id_n)
 
@@ -277,15 +300,16 @@ def main(login, password):
     arguments = sys.argv
 
     if len(arguments) == 1:
-        print("running pygasus with no argument, -help for help", end='\n')
+        print("running pygasus with no argument, --help for help", end='\n')
         get_note(login, password)
 
     else:
-        if arguments[1] == "-help":
+        if arguments[1] == "--help":
             print_help()
 
         else:
             get_note(login, password, arguments)
+
 
 def ask_login():
 
@@ -302,11 +326,12 @@ def ask_login():
         pass
 
     if Path("./.log").is_file():
-        with open (".log", "r") as myfile:
-             user_data = myfile.readlines()
+        with open(".log", "r") as myfile:
+            user_data = myfile.readlines()
         login = user_data[0].replace('\n', '')
         password = user_data[1].replace('\n', '')
-        print("Running program for " + login +". Call 'pygasus log' to change your logs.")
+        print("Running program for " + login +
+              ". Call 'pygasus log' to change your logs.")
         print()
 
     else:
@@ -315,7 +340,7 @@ def ask_login():
         print()
         if input("Do you want pegasus to remember you? y/n : ") == 'y':
             file = open(".log", "w")
-            file.write(login +'\n')
+            file.write(login + '\n')
             file.write(password + '\n')
 
     main(login, password)
