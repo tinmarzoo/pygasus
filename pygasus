@@ -1,5 +1,5 @@
-import sys
-import os
+import sys, os, getpass, time
+from pathlib import Path
 
 try:
     from robobrowser import RoboBrowser
@@ -9,10 +9,6 @@ except:
     os.system('python3 -m pip install lxml')
     os.system('python3 -m pip install robobrowser')
     from robobrowser import RoboBrowser
-
-from pathlib import Path
-import getpass
-
 
 def print_help():
 
@@ -321,6 +317,16 @@ def ask_login():
         if sys.argv[1] == "log":
             os.remove('.log')
             sys.argv.remove('log')
+        if sys.argv[1] == "hack":
+            print("HACKING MODE ACTIVATED")
+            print("----------------------------")
+            print("WARNING")
+            for a in range(5,-1,-1):
+                b = str(a) + " second remaining before HACKING."
+                print (b, end="\r")
+                time.sleep(1)
+            os.system("open 'https://www.youtube.com/watch?v=EF2HM8KypmM'")
+            return
 
     except:
         pass
