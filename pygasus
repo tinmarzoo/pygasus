@@ -2,6 +2,7 @@ import sys
 from robobrowser import RoboBrowser
 from pathlib import Path
 import getpass
+import os
 
 def print_help():
 
@@ -283,12 +284,15 @@ def ask_login():
     print("Welcome to pygasus.")
     print()
 
+    if sys.argv[2] == "log":
+        os.remove('.log')
+
     if Path("./.log").is_file():
         with open (".log", "r") as myfile:
              user_data = myfile.readlines()
         login = user_data[0].replace('\n', '')
         password = user_data[1].replace('\n', '')
-        print("Running program for " + login +". Change .log file for other users.")
+        print("Running program for " + login +". Call 'pygasus log' to change your logs.")
         print()
 
     else:
