@@ -1,5 +1,13 @@
 import sys
-from robobrowser import RoboBrowser
+
+try:
+    from robobrowser import RoboBrowser
+except:
+    print("Installing dependencies ..")
+    print("This will only occur during first launch.")
+    os.system('python3 -m pip install lxml')
+    os.system('python3 -m pip install robobrowser')
+
 from pathlib import Path
 import getpass
 import os
@@ -310,18 +318,7 @@ def ask_login():
 
     main(login, password)
 
-def install_dependencies():
-
-    if not 'lxml' in sys.modules:
-        print("Installing dependencies ..")
-        print("This will only occur during first launch.")
-        os.system('python3 -m pip install lxml')
-    if not 'robobrowser' in sys.modules:
-        print("Installing dependencies ..")
-        os.system('python3 -m pip install robobrowser')
-
 try:
-    install_dependencies()
-    ask_login()    
+    ask_login()
 except:
     print("An error occured :( Don't forget to install all the dependencies and to be connected to the internet. Read README")
