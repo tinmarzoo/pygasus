@@ -317,6 +317,7 @@ def ask_login():
         if sys.argv[1] == "log":
             os.remove('.log')
             sys.argv.remove('log')
+            
         if sys.argv[1] == "hack":
             print("HACKING MODE ACTIVATED")
             print("----------------------------")
@@ -354,4 +355,4 @@ def ask_login():
 try:
     ask_login()
 except:
-    print("An error occured :( Don't forget to install all the dependencies and to be connected to the internet. Read README")
+    print("An error occured :( \nCheck your internet connection.\n")
