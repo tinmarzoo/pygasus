@@ -9,6 +9,8 @@ Pygasus is a grade scraping tool for pegasus website.
 * [python 3] - python 3+
 * [lxml] - parser
 * [pip] - not mandatory but should be installed
+
+
 ### Installation
 
 ```sh
