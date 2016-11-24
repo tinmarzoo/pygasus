@@ -11,6 +11,7 @@ def print_help():
     print("Ex : 'python pygasus math' or 'python pygasus algo' (math, algo, elec, ip, phy, anglais, te, archi, oc).", end='\n')
     print("Call with type of grade after subject to get only those grades.")
     print("Ex : 'python pygasus math mcq' or 'python pygasus algo td' (mcd, cc, td, partiel, projet).")
+    print("Call 'pygasus log' to change your log info.")
     print()
     print()
 
@@ -263,7 +264,6 @@ def get_note(login, password, arg=None):
 
 def main(login, password):
 
-
     arguments = sys.argv
 
     if len(arguments) == 1:
@@ -271,7 +271,6 @@ def main(login, password):
         get_note(login, password)
 
     else:
-    # globals()[sys.argv[1]]
         if arguments[1] == "-help":
             print_help()
 
@@ -284,8 +283,13 @@ def ask_login():
     print("Welcome to pygasus.")
     print()
 
-    if sys.argv[2] == "log":
-        os.remove('.log')
+    try:
+        if sys.argv[1] == "log":
+            os.remove('.log')
+            sys.argv.remove('log')
+
+    except:
+        pass
 
     if Path("./.log").is_file():
         with open (".log", "r") as myfile:
