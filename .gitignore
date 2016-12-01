@@ -2,7 +2,7 @@
 *.DS_Store
 .AppleDouble
 .LSOverride
-
+pygasus_thread.py
 # Icon must end with two \r
 Icon
 # Thumbnails

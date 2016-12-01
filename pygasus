@@ -322,6 +322,7 @@ def ask_login():
             print("HACKING MODE ACTIVATED")
             print("----------------------------")
             print("WARNING")
+            os.system("say 'hacking mode enable'")
             for a in range(5,-1,-1):
                 b = str(a) + " second remaining before HACKING."
                 print (b, end="\r")
